@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xactus | Auditoría de Transformación con IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #013e7b;
+            --accent-blue: #5C95FF;
+            --pure-white: #FFFEFF;
+            --light-accent: #BCDCD7;
+            --dark-bg: #0B0A09;
+            --card-bg: #141312;
+            --border-color: rgba(92, 149, 255, 0.2);
+            --success-color: #00C48C;
+            --warning-color: #E5A443;
+            --font-primary: 'Lexend', sans-serif;
+            --font-display: 'Poppins', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--dark-bg);
+            color: var(--pure-white);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+        .section {
+            padding: 120px 0;
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title h2 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        
+        .section-title h2 span {
+            background: -webkit-linear-gradient(45deg, var(--primary-blue), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .section-title p {
+            color: #a0a0b0;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* --- Animations --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Header & Hero --- */
+        header {
+            padding: 25px 0;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(11, 10, 9, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--pure-white);
+        }
+
+        .logo span {
+            color: var(--primary-blue);
+        }
+
+        .hero {
+            padding: 120px 0;
+            text-align: center;
+        }
+        
+        .hero .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            color: var(--pure-white);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #b0b0c0;
+            max-width: 750px;
+            margin: 0 auto 40px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--primary-blue);
+            color: var(--pure-white);
+            padding: 18px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 30px rgba(1, 62, 123, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(92, 149, 255, 0.4);
+        }
+
+        /* --- Custom Components --- */
+        .card {
+            background: linear-gradient(145deg, var(--card-bg), #1a1918);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            margin-bottom: 20px;
+            color: var(--accent-blue);
+        }
+
+        .styled-list li {
+            list-style: none;
+            margin-bottom: 15px;
+            padding-left: 35px;
+            position: relative;
+            font-size: 1.05rem;
+        }
+        
+        .styled-list li::before {
+            content: '✓';
+            color: var(--pure-white);
+            background-color: var(--primary-blue);
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+        }
+        
+        /* Process Flow Diagram */
+        .process-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 20px;
+        }
+        
+        .process-step {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .process-step .step-number {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+        
+        .process-step .step-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .process-arrow {
+            font-size: 2.5rem;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Accordion for Questions */
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .accordion-header {
+            background-color: var(--card-bg);
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .accordion-header h4 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 25px;
+            background: #100f0e;
+        }
+
+        .question-group {
+            padding: 15px 0;
+        }
+
+        .question-group h5 {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--light-accent);
+        }
+
+        .question-group p {
+            font-style: italic;
+            color: #b0b0c0;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            border-left: 2px solid var(--primary-blue);
+        }
+
+        /* Question Toggler */
+        .question-toggler {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .question-toggler .q-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-blue);
+            border-radius: 50%;
+            color: var(--pure-white);
+            display: grid;
+            place-items: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+        .question-toggler:hover .q-icon {
+            transform: scale(1.1);
+        }
+        .question-toggler span {
+            font-weight: 500;
+            color: var(--accent-blue);
+        }
+        .question-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s ease-out, padding 0.6s ease-out, margin-top 0.6s ease-out;
+            padding: 0;
+            margin-top: 0;
+            border-left: 2px solid var(--border-color);
+            margin-left: 15px;
+        }
+        .question-panel.open {
+            max-height: 1000px; /* Adjust as needed */
+            padding: 20px 20px 10px;
+            margin-top: 20px;
+        }
+        
+        /* Canvas of Operations */
+        .canvas-operations {
+            background-color: var(--dark-bg);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .engine {
+            margin-bottom: 30px;
+        }
+        .engine:last-child { margin-bottom: 0; }
+        
+        .engine-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--light-accent);
+        }
+        
+        .engine-flow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .flow-node {
+            background-color: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .flow-node.friction {
+            border-color: var(--warning-color);
+            box-shadow: 0 0 15px rgba(229, 164, 67, 0.3);
+            color: var(--warning-color);
+        }
+        
+        /* Prioritization Matrix */
+        .matrix-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+        }
+        
+        .matrix-y-axis {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #a0a0b0;
+        }
+        
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .matrix-quadrant {
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px dashed #444;
+        }
+        .matrix-quadrant h4 { font-family:var(--font-primary); font-size: 1.1rem; margin-bottom: 10px; font-weight: 600;}
+        .matrix-quadrant p { font-size: 0.9rem; color: #888; }
+        
+        .quadrant-quick-wins {
+            border-style: solid;
+            border-color: var(--success-color);
+            background: rgba(0, 196, 140, 0.05);
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(0, 196, 140, 0.2);
+        }
+        .quadrant-quick-wins h4 { color: var(--success-color); }
+        
+        .matrix-x-axis {
+            grid-column: 2;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            color: #a0a0b0;
+        }
+
+        /* Validation Process */
+        .validation-process {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .validation-step {
+            text-align: center;
+        }
+        .validation-step .step-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            display: grid;
+            place-items: center;
+            margin: 0 auto 15px;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+        }
+        
+        .validation-step p {
+            max-width: 200px;
+            margin: 0 auto;
+            color: #a0a0b0;
+        }
+        
+        .validation-result {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(0, 196, 140, 0.1);
+            border: 1px solid var(--success-color);
+        }
+        
+        /* ROI Analysis */
+        .roi-analysis {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .roi-section h4 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .roi-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .roi-section ul li {
+            display: flex;
+            align-items: start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .roi-section ul li svg {
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .roi-calculation {
+            grid-column: 1 / -1;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .roi-calculation h4 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .roi-metrics {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .metric-card {
+            background-color: var(--dark-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .metric-card .label {
+            font-size: 1rem;
+            color: #a0a0b0;
+        }
+        
+        .metric-card .value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--success-color);
+            margin: 5px 0;
+        }
+        
+        .metric-card .value.blue {
+            color: var(--accent-blue);
+        }
+
+        .roi-math-breakdown {
+            margin-top: 40px;
+            padding: 30px;
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            text-align: left;
+        }
+        .roi-math-breakdown h5 {
+            font-family: var(--font-display);
+            color: var(--accent-blue);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .roi-math-breakdown p {
+            color: #b0b0c0;
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        .roi-math-breakdown code {
+            background: var(--dark-bg);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--light-accent);
+        }
+
+
+        /* Final Sections */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        .icon-card {
+            text-align: center;
+        }
+        .icon-card svg {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+        }
+        .icon-card h4 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .final-cta {
+            text-align: center;
+            background: linear-gradient(rgba(1, 62, 123, 0.1), rgba(11, 10, 9, 0)), var(--dark-bg);
+            padding: 100px 0;
+        }
+        .final-cta h2 {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+         .final-cta p {
+            font-size: 1.2rem;
+            color: #b0b0c0;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        footer {
+            padding: 50px 0;
+            text-align: center;
+            color: #a0a0b0;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .subsection-title {
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+        }
+        
+        .subsection-title p {
+            font-family: var(--font-primary);
+            font-size: 1.1rem;
+            color: #a0a0b0;
+            max-width: 800px;
+            margin: 10px auto 0;
+            font-weight: 400;
+        }
+
+        @media (max-width: 900px) {
+            .roi-analysis { grid-template-columns: 1fr; }
+            .process-flow, .validation-process { flex-direction: column; }
+            .process-arrow { transform: rotate(90deg); margin: 15px 0;}
+            .matrix-container { grid-template-columns: 1fr; }
+            .matrix-y-axis { writing-mode: horizontal-tb; transform: none; margin-bottom: 20px;}
+            .grid-2-col { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .section { padding: 80px 0; }
+            .hero h1 { font-size: 3rem; }
+            .section-title h2 { font-size: 2.2rem; }
+            .matrix-grid { grid-template-columns: 1fr; }
+            .quadrant-quick-wins { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo">Xactus</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1 class="reveal">La Arquitectura de la Transformación Digital con IA</h1>
+                <p class="reveal" style="transition-delay: 0.2s;">Presentamos nuestra metodología de consultoría para develar oportunidades de automatización, optimizar procesos y garantizar un ROI medible, posicionándote como líder en la innovación de tu sector.</p>
+                <a href="https://xactus.io" target="_blank" class="cta-button reveal" style="transition-delay: 0.4s;">Agendar una Sesión Estratégica</a>
+            </div>
+        </section>
+
+        <section id="intro" class="section">
+            <div class="container">
+                <div class="section-title reveal">
+                    <h2>Nosotros no vendemos IA. <span>Creamos Socios.</span></h2>
+                    <p>El mercado está saturado de soluciones genéricas. Nosotros nos enfocamos en una relación profunda y estratégica. Nos convertimos en tu <strong>AI Transformation Partner (AITP) - Socio de Transformación en IA.</strong></p>
+                </div>
+                <div class="reveal" style="display: grid; justify-content: center;">
+                    <div class="card" style="max-width: 800px;">
+                        <h3>¿Qué significa ser tu AITP?</h3>
+                        <ul class="styled-list">
+                           <li>Nos convertimos en tu socio estratégico a largo plazo, enfocados 100% en tus objetivos de negocio.</li>
+                           <li>Analizamos tus procesos de negocio para encontrar oportunidades de alto valor con un ROI claro y medible.</li>
+                           <li>Implementamos soluciones de IA sin fricción, trabajando en conjunto con tu equipo para asegurar la adopción.</li>
+                           <li>Te posicionamos como un líder innovador en tu industria a través de una transformación digital real y tangible.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="framework" class="section" style="background-color: var(--card-bg);">
+            <div class="container">
+                <div class="section-title reveal">
+                    <h2>Nuestro Marco de Auditoría de <span>3 Pasos</span></h2>
+                    <p>Una metodología probada, transparente y eficiente, diseñada para maximizar el valor y minimizar el riesgo.</p>
+                </div>
+                <div class="process-flow reveal">
+                    <div class="process-step">
+                        <div class="step-number">PASO 1</div>
+                        <div class="step-title">Descubrimiento y Diagnóstico</div>
+                    </div>
+                    <div class="process-arrow">→</div>
+                    <div class="process-step">
+                        <div class="step-number">PASO 2</div>
+                        <div class="step-title">Mapeo y Estrategia</div>
+                    </div>
+                    <div class="process-arrow">→</div>
+                    <div class="process-step">
+                        <div class="step-number">PASO 3</div>
+                        <div class="step-title">Plan de Acción y ROI</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="step-detail section">
+            <div class="container">
+                <div class="section-title reveal">
+                    <h2><span>Paso 1:</span> Entrevistas de Descubrimiento</h2>
+                    <p>El primer paso es entender a fondo tu negocio desde dos perspectivas clave: la visión estratégica y la realidad operativa del día a día.</p>
+                </div>
+                
+                <div class="grid grid-2-col" style="gap: 40px; align-items: flex-start;">
+                    <div class="card reveal">
+                        <h3>🎯 Objetivos Estratégicos</h3>
+                        <p style="color: #a0a0b0; margin-bottom: 20px;">Entrevistas con stakeholders para alinear la visión y los KPIs.</p>
+                        <ul class="styled-list">
+                            <li>Estructura y Roles</li>
+                            <li>Procesos Críticos del Negocio</li>
+                            <li>Stack Tecnológico Actual</li>
+                            <li>Puntos de Dolor y Fricciones</li>
+                            <li>Visión y Objetivos Futuros</li>
+                        </ul>
+                        <div class="question-toggler" onclick="toggleQuestions('stakeholders-q')">
+                            <div class="q-icon">?</div>
+                            <span>Ver Preguntas Clave para Stakeholders</span>
+                        </div>
+                        <div class="question-panel" id="stakeholders-q">
+                            <div class="question-group">
+                                <h5>Rol y Equipo</h5>
+                                <p>"¿Cuáles son los 3 KPIs más importantes de su departamento?"</p>
+                                <p>"¿Cómo está estructurado su equipo?"</p>
+                            </div>
+                            <div class="question-group">
+                                <h5>Procesos</h5>
+                                <p>"¿Dónde están los mayores cuellos de botella?"</p>
+                                <p>"¿Qué proceso consume más recursos?"</p>
+                            </div>
+                            <div class="question-group">
+                                <h5>Tecnología</h5>
+                                <p>"¿Qué herramientas son indispensables?"</p>
+                                <p>"¿Qué procesos ocurren fuera del sistema principal?"</p>
+                            </div>
+                             <div class="question-group">
+                                <h5>Desafíos</h5>
+                                <p>"Si tuviera una varita mágica, ¿qué problema resolvería?"</p>
+                                <p>"¿Qué impide que su equipo sea más eficiente?"</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card reveal" style="transition-delay: 0.2s;">
+                        <h3>🕵️ Realidad Operativa</h3>
+                        <p style="color: #a0a0b0; margin-bottom: 20px;">Entrevistas con usuarios finales para detectar ineficiencias reales.</p>
+                        <ul class="styled-list">
+                            <li>Tareas repetitivas (>30 min/día)</li>
+                            <li>Doble entrada de datos</li>
+                            <li>Procesos manuales complejos</li>
+                            <li>Puntos de error frecuentes</li>
+                            <li>Tiempos muertos por aprobaciones</li>
+                        </ul>
+                         <div class="question-toggler" onclick="toggleQuestions('users-q')">
+                            <div class="q-icon">?</div>
+                            <span>Ver Preguntas Clave para Usuarios</span>
+                        </div>
+                        <div class="question-panel" id="users-q">
+                            <div class="question-group">
+                                <h5>Rutina Diaria</h5>
+                                <p>"Descríbame su día típico paso a paso"</p>
+                                <p>"¿Cuánto tiempo dedica a tareas administrativas?"</p>
+                            </div>
+                            <div class="question-group">
+                                <h5>Procesos Detallados</h5>
+                                <p>"Muéstreme exactamente cómo procesa [tarea específica]"</p>
+                                <p>"¿Qué información necesita buscar para completar esto?"</p>
+                            </div>
+                            <div class="question-group">
+                                <h5>Frustraciones</h5>
+                                <p>"¿Cuál es la parte más tediosa de su trabajo?"</p>
+                                <p>"¿Qué tareas delegaría a un asistente?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="step-detail section" style="background-color: var(--card-bg);">
+            <div class="container">
+                <div class="section-title reveal">
+                    <h2><span>Paso 2:</span> Mapeo y Análisis de Oportunidades</h2>
+                    <p>Aquí es donde la información se convierte en inteligencia. Visualizamos tus operaciones y priorizamos las iniciativas para un máximo impacto.</p>
+                </div>
+                
+                <div class="reveal">
+                    <div class="subsection-title">
+                        <h3>A. Canvas de Operaciones</h3>
+                        <p>Identificamos los puntos de fricción en tus flujos de trabajo clave.</p>
+                    </div>
+                    <div class="canvas-operations">
+                        <div class="engine">
+                            <div class="engine-title">🎣 Proceso de Adquisición</div>
+                            <div class="engine-flow">
+                                <div class="flow-node">Lead</div> <span class="process-arrow">→</span>
+                                <div class="flow-node friction">Calificación</div> <span class="process-arrow">→</span>
+                                <div class="flow-node">Demo</div> <span class="process-arrow">→</span>
+                                <div class="flow-node friction">Propuesta</div> <span class="process-arrow">→</span>
+                                <div class="flow-node">Cierre</div>
+                            </div>
+                        </div>
+                        <div class="engine">
+                            <div class="engine-title">📦 Proceso de Entrega</div>
+                            <div class="engine-flow">
+                                <div class="flow-node">Kick-off</div> <span class="process-arrow">→</span>
+                                <div class="flow-node friction">Planificación</div> <span class="process-arrow">→</span>
+                                <div class="flow-node">Ejecución</div> <span class="process-arrow">→</span>
+                                <div class="flow-node">QA</div> <span class="process-arrow">→</span>
+                                <div class="flow-node">Entrega</div>
+                            </div>
+                        </div>
+                        <div class="engine">
+                            <div class="engine-title">🛟 Proceso de Soporte</div>
+                            <div class="engine-flow">
+                                <div class="flow-node">Ticket</div> <span class="process-arrow">→</span>
+                                <div class="flow-node friction">Triage</div> <span class="process-arrow">→</span>
+                                <div class="flow-node">Resolución</div> <span class="process-arrow">→</span>
+                                <div class="flow-node">Follow-up</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reveal" style="margin-top: 100px;">
+                    <div class="subsection-title">
+                        <h3>B. Matriz de Priorización</h3>
+                        <p>Clasificamos cada oportunidad para enfocarnos en lo que genera mayor impacto con el menor esfuerzo. Nuestro enfoque es claro: empezar por los <strong>Quick Wins.</strong></p>
+                    </div>
+                     <div class="matrix-container">
+                        <div class="matrix-y-axis">IMPACTO</div>
+                        <div class="matrix-grid">
+                            <div class="matrix-quadrant"><h4>🔄 Big Swings</h4><p>(Alto Esfuerzo, Alto Impacto)<br>Ej. Análisis predictivo</p></div>
+                            <div class="matrix-quadrant quadrant-quick-wins"><h4>⭐ Quick Wins</h4><p>(Bajo Esfuerzo, Alto Impacto)<br>Ej. Chatbot para FAQ</p></div>
+                            <div class="matrix-quadrant"><h4>🗑️ Deprioritize</h4><p>(Alto Esfuerzo, Bajo Impacto)<br>Ej. Migración legacy</p></div>
+                            <div class="matrix-quadrant"><h4>👍 Nice-to-Have</h4><p>(Bajo Esfuerzo, Bajo Impacto)<br>Ej. Notificaciones</p></div>
+                        </div>
+                        <div class="matrix-x-axis">ESFUERZO</div>
+                    </div>
+                </div>
+                
+                <div class="reveal" style="margin-top: 100px;">
+                    <div class="subsection-title">
+                        <h3>C. Proceso de Validación</h3>
+                        <p>La estrategia no se impone, se co-crea. Validamos nuestros hallazgos contigo para asegurar una alineación total con tus objetivos.</p>
+                    </div>
+                    <div class="validation-process">
+                        <div class="validation-step">
+                            <div class="step-icon">1</div>
+                            <h4>Presentar</h4>
+                            <p>Compartimos nuestra hipótesis inicial.</p>
+                        </div>
+                        <div class="process-arrow">→</div>
+                        <div class="validation-step">
+                            <div class="step-icon">2</div>
+                            <h4>Co-Crear</h4>
+                            <p>Ajustamos el plan basados en tu experiencia.</p>
+                        </div>
+                        <div class="process-arrow">→</div>
+                        <div class="validation-step">
+                            <div class="step-icon">3</div>
+                            <h4>Confirmar</h4>
+                            <p>Alineamos el plan con los objetivos del negocio.</p>
+                        </div>
+                    </div>
+                    <div class="validation-result">
+                        <strong>✅ Resultado:</strong> Un plan de acción acordado mutuamente, listo para la ejecución.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="step-detail section">
+            <div class="container">
+                <div class="section-title reveal">
+                    <h2><span>Paso 3:</span> Plan de Acción y ROI</h2>
+                    <p>Traducimos la estrategia en un caso de negocio irrefutable. Te mostramos no solo qué hacer, sino el valor financiero exacto que generará.</p>
+                </div>
+
+                <div class="card reveal">
+                    <h3>Nuestra Metodología para el Cálculo de ROI</h3>
+                    <p style="color:#a0a0b0; margin-top:-10px; margin-bottom: 20px;">La transparencia es clave. Así es como convertimos las mejoras operativas en números tangibles:</p>
+                    <ul class="styled-list">
+                        <li><strong>Cuantificar Horas:</strong> Identificamos el tiempo exacto que los empleados dedican a tareas repetitivas y automatizables.</li>
+                        <li><strong>Asignar Valor Monetario:</strong> Calculamos el costo por hora promedio de los empleados involucrados para traducir el tiempo a un costo operativo real.</li>
+                        <li><strong>Calcular el Ahorro:</strong> Proyectamos el porcentaje de tiempo que se ahorrará con la nueva solución de IA y lo convertimos a un ahorro monetario anual.</li>
+                        <li><strong>Determinar el ROI:</strong> Comparamos el ahorro anual con la inversión estimada en la solución para obtener un porcentaje claro de retorno y el tiempo de recuperación (payback).</li>
+                    </ul>
+                </div>
+                
+                <div class="reveal" style="margin-top: 60px;">
+                    <div class="subsection-title">
+                        <h3>Ejemplo: Desglose de ROI para Automatización de Reportes</h3>
+                    </div>
+                    <div class="roi-analysis">
+                        <div class="roi-section">
+                            <h4>Situación Actual (Manual)</h4>
+                            <ul>
+                                <li>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="var(--warning-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 6V12L16 14" stroke="var(--warning-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <div><strong>Proceso Lento:</strong> 5 empleados dedican 10 horas/semana cada uno (50h total).</div>
+                                </li>
+                                <li>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="var(--warning-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <div><strong>Propenso a Errores:</strong> Alta probabilidad de errores manuales.</div>
+                                </li>
+                            </ul>
+                        </div>
+                         <div class="roi-section">
+                            <h4>Con Automatización IA</h4>
+                            <ul>
+                                <li>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 13V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V18C3 19.1046 3.89543 20 5 20H12" stroke="var(--success-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 18C22 20.2091 20.2091 22 18 22C15.7909 22 14 20.2091 14 18C14 15.7909 15.7909 14 18 14C20.2091 14 22 15.7909 22 18Z" stroke="var(--success-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 18L17.5 19.5L20 17" stroke="var(--success-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <div><strong>Eficiencia Máxima:</strong> Reducción del 80% en tiempo dedicado.</div>
+                                </li>
+                                <li>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="var(--success-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <div><strong>Precisión Garantizada:</strong> Reportes consistentes y sin errores.</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="roi-calculation">
+                            <h4>Resultados Financieros</h4>
+                            <div class="roi-metrics">
+                                <div class="metric-card">
+                                    <div class="label">Ahorro Anual Estimado</div>
+                                    <div class="value">$48,000</div>
+                                </div>
+                                 <div class="metric-card">
+                                    <div class="label">Payback (Recuperación)</div>
+                                    <div class="value blue">3.75</div>
+                                    <div class="label">meses</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="label">Retorno de la Inversión (ROI)</div>
+                                    <div class="value">320%</div>
+                                </div>
+                            </div>
+                            <div class="roi-math-breakdown">
+                                <h5>Detalle del Cálculo Matemático</h5>
+                                <p><strong>1. Costo Anual Actual:</strong><br>
+                                    Se asume un costo por hora promedio de $25.<br>
+                                    <code>50 horas/semana * 52 semanas/año * $25/hora = $65,000 anuales</code>
+                                </p>
+                                <p><strong>2. Costo Anual con IA:</strong><br>
+                                    Reducción de tiempo del 80%. El costo restante es el 20% del original.<br>
+                                    <code>$65,000 * 20% = $13,000 anuales</code>
+                                </p>
+                                <p><strong>3. Ahorro Anual Bruto:</strong><br>
+                                    <code>$65,000 (Costo Actual) - $13,000 (Costo Nuevo) = $52,000</code>
+                                </p>
+                                <p><strong>4. Ahorro Anual Estimado (Neto):</strong><br>
+                                    Se estima una inversión inicial de $15,000 y un mantenimiento anual de $4,000. El ahorro neto es el ahorro bruto menos el mantenimiento.<br>
+                                    <code>$52,000 (Ahorro Bruto) - $4,000 (Mantenimiento) = $48,000</code>
+                                </p>
+                                <p><strong>5. Payback (Recuperación de Inversión):</strong><br>
+                                    <code>$15,000 (Inversión) / ($48,000 / 12 meses) = 3.75 meses</code>
+                                </p>
+                                <p><strong>6. Retorno de la Inversión (ROI) a 1 año:</strong><br>
+                                    <code>($48,000 (Ahorro Neto) / $15,000 (Inversión)) * 100 = 320%</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="final-cta">
+            <div class="container">
+                <h2 class="reveal">Inicia tu Transformación Hoy</h2>
+                <p class="reveal" style="transition-delay: 0.2s;">La oportunidad para liderar con IA es ahora. Con nuestra metodología probada, tienes el socio ideal para empezar.</p>
+                <a href="https://xactus.io" target="_blank" class="cta-button reveal" style="background-color: var(--pure-white); color: var(--primary-blue); transition-delay: 0.4s;">Agendar mi Auditoría Estratégica</a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Xactus. Todos los derechos reservados. Construyendo el Futuro de los Negocios con IA.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            revealElements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 100) {
+                    el.classList.add('visible');
+                }
+            });
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Initial check
+
+        // Question Panel Toggle
+        function toggleQuestions(id) {
+            const panel = document.getElementById(id);
+            if (panel) {
+                panel.classList.toggle('open');
+            }
+        }
+    </script>
+</body>
+</html>
