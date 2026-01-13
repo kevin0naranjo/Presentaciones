@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Forzar el modo claro -->
+    <meta name="color-scheme" content="light only">
+    <title>Formulario Diagnóstico Xactus</title>
+    
+    <!-- Importamos Montserrat como respaldo (muy parecida a Nexa) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CONFIGURACIÓN DE COLORES Y FUENTES --- */
+        :root {
+            --brand-color: rgb(23, 64, 119);
+            --brand-hover: rgb(16, 45, 85);
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-gray: #555555;
+            --border-color: #cccccc;
+            --info-bg: #f4f7fa;
+            --success-color: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* CONFIGURACIÓN DE LA FUENTE NEXA */
+        body {
+            background-color: var(--white) !important;
+            color: var(--text-dark) !important;
+            /* Prioriza Nexa, si no la tiene, usa Montserrat */
+            font-family: 'Nexa', 'Montserrat', sans-serif; 
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Contenedor principal */
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--white);
+            margin-top: 20px;
+        }
+
+        /* --- LOGO --- */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-container img {
+            max-width: 180px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* --- ESTILOS DEL FORMULARIO --- */
+        h1 {
+            color: var(--brand-color);
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700; /* Nexa Bold suele ser heavy */
+        }
+
+        .form-group {
+            margin-bottom: 35px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700; /* Negrita para títulos */
+            color: var(--brand-color);
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        /* Estilo para inputs de texto */
+        input[type="text"], 
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-family: 'Nexa', 'Montserrat', sans-serif; /* Heredar fuente */
+            font-weight: 400;
+            color: var(--text-dark);
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            appearance: none;
+        }
+
+        input[type="text"]:focus, 
+        textarea:focus {
+            border-color: var(--brand-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(23, 64, 119, 0.1);
+        }
+
+        /* --- CAJA DE DEFINICIÓN (INFO) --- */
+        .definition-box {
+            background-color: var(--info-bg);
+            border-left: 4px solid var(--brand-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-gray);
+        }
+
+        .definition-box strong {
+            color: var(--brand-color);
+            font-weight: 700;
+        }
+
+        .definition-warning {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-weight: 600;
+            color: #d9534f;
+        }
+
+        /* --- BOTÓN --- */
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--brand-color);
+            color: var(--white);
+            font-family: 'Nexa', 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--brand-hover);
+        }
+
+        .btn-submit:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        /* Mensaje de éxito (oculto por defecto) */
+        #mensaje-exito {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Override específico para forzar blanco en modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #ffffff !important; color: #333333 !important; }
+            input, textarea { background-color: #ffffff !important; color: #333333 !important; border: 1px solid #cccccc !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <!-- LOGO -->
+        <div class="logo-container">
+            <img src="https://xactus.io/wp-content/uploads/2025/02/Logo.png" alt="Logo Xactus">
+        </div>
+
+        <h1>Diagnóstico Estratégico</h1>
+
+        <form id="diagnosticoForm">
+            
+            <!-- PREGUNTA 1 -->
+            <div class="form-group">
+                <label for="linea">1. ¿Cuál es la línea estratégica a la que perteneces?</label>
+                <input type="text" id="linea" name="linea_estrategica" placeholder="Escribe tu área o línea aquí..." required>
+            </div>
+
+            <!-- PREGUNTA 2 -->
+            <div class="form-group">
+                <label for="problemas">2. Identificación de Problemas</label>
+                
+                <div class="definition-box">
+                    <strong>DEFINICIÓN DE PROBLEMA:</strong><br>
+                    Es un vacío, deficiencias, conflictos u obstáculos que puedes identificar.<br>
+                    <span class="definition-warning">⚠️ Nota: No describas la solución inmediatamente, enfócate en el problema.</span>
+                </div>
+
+                <textarea id="problemas" name="problemas" rows="6" placeholder="Describe los problemas principales aquí..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Enviar Información</button>
+            
+            <!-- Mensaje de éxito -->
+            <div id="mensaje-exito">
+                ✅ Información enviada correctamente. ¡Gracias!
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('diagnosticoForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const mensajeExito = document.getElementById('mensaje-exito');
+        const webhookUrl = 'https://n8n.alliasoft.com/webhook/encuesta-problemas';
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que la página se recargue
+
+            // 1. Deshabilitar botón para evitar doble envío
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            // 2. Capturar datos del formulario
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // 3. Enviar datos al Webhook como JSON
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Éxito
+                    form.reset(); // Limpiar formulario
+                    mensajeExito.style.display = 'block'; // Mostrar mensaje
+                    setTimeout(() => {
+                        mensajeExito.style.display = 'none';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Enviar Información';
+                    }, 5000); // Ocultar mensaje después de 5 segundos
+                } else {
+                    // Error del servidor
+                    alert('Hubo un error al enviar los datos. Por favor intenta de nuevo.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Enviar Información';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión. Revisa tu internet.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Información';
+            });
+        });
+    </script>
+
+</body>
+</html>
