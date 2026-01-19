@@ -7,7 +7,7 @@
     <meta name="color-scheme" content="light only">
     <title>Formulario Diagnóstico Xactus</title>
     
-    <!-- Importamos Montserrat como respaldo (muy parecida a Nexa) -->
+    <!-- Importamos Montserrat como respaldo -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -29,11 +29,9 @@
             padding: 0;
         }
 
-        /* CONFIGURACIÓN DE LA FUENTE NEXA */
         body {
             background-color: var(--white) !important;
             color: var(--text-dark) !important;
-            /* Prioriza Nexa, si no la tiene, usa Montserrat */
             font-family: 'Nexa', 'Montserrat', sans-serif; 
             display: flex;
             justify-content: center;
@@ -42,7 +40,6 @@
             padding: 20px;
         }
 
-        /* Contenedor principal */
         .form-container {
             width: 100%;
             max-width: 600px;
@@ -69,7 +66,7 @@
             font-size: 24px;
             text-align: center;
             margin-bottom: 30px;
-            font-weight: 700; /* Nexa Bold suele ser heavy */
+            font-weight: 700;
         }
 
         .form-group {
@@ -78,19 +75,18 @@
 
         label {
             display: block;
-            font-weight: 700; /* Negrita para títulos */
+            font-weight: 700;
             color: var(--brand-color);
             margin-bottom: 10px;
             font-size: 16px;
         }
 
-        /* Estilo para inputs de texto */
         input[type="text"], 
         textarea {
             width: 100%;
             padding: 12px 15px;
             font-size: 16px;
-            font-family: 'Nexa', 'Montserrat', sans-serif; /* Heredar fuente */
+            font-family: 'Nexa', 'Montserrat', sans-serif;
             font-weight: 400;
             color: var(--text-dark);
             background-color: var(--white);
@@ -158,7 +154,6 @@
             cursor: not-allowed;
         }
 
-        /* Mensaje de éxito (oculto por defecto) */
         #mensaje-exito {
             display: none;
             margin-top: 20px;
@@ -171,7 +166,6 @@
             font-weight: 600;
         }
 
-        /* Override específico para forzar blanco en modo oscuro */
         @media (prefers-color-scheme: dark) {
             body { background-color: #ffffff !important; color: #333333 !important; }
             input, textarea { background-color: #ffffff !important; color: #333333 !important; border: 1px solid #cccccc !important; }
@@ -183,35 +177,47 @@
     <div class="form-container">
         <!-- LOGO -->
         <div class="logo-container">
-            <img src="https://xactus.io/wp-content/uploads/2025/02/Logo.png" alt="Logo Xactus">
+            <!-- 
+               IMPORTANTE SOBRE LA IMAGEN:
+               Si la imagen no carga en producción, es probable que el servidor original bloquee
+               el acceso externo (Hotlinking). 
+               SOLUCIÓN: Descarga la imagen, guárdala en tu carpeta local como "logo.png" 
+               y cambia el src a: src="logo.png"
+            -->
+            <img src="https://xactus.io/wp-content/uploads/2025/02/Logo.png" alt="Logo Xactus" onerror="this.style.display='none'; document.querySelector('.logo-container').innerHTML='<h2>XACTUS</h2>'">
         </div>
 
         <h1>Diagnóstico Estratégico</h1>
 
         <form id="diagnosticoForm">
             
-            <!-- PREGUNTA 1 -->
+            <!-- PREGUNTA 1: NOMBRE -->
             <div class="form-group">
-                <label for="linea">1. ¿Cuál es la línea estratégica a la que perteneces?</label>
-                <input type="text" id="linea" name="linea_estrategica" placeholder="Escribe tu área o línea aquí..." required>
+                <label for="nombre">1. ¿Cuál es tu nombre?</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Escribe tu nombre completo..." required>
             </div>
 
-            <!-- PREGUNTA 2 -->
+            <!-- PREGUNTA 2: FRENTE -->
             <div class="form-group">
-                <label for="problemas">2. Identificación de Problemas</label>
+                <label for="frente">2. ¿A cuál frente corresponde el problema?</label>
+                <input type="text" id="frente" name="frente" placeholder="Ej: Operaciones, Ventas, Tecnología..." required>
+            </div>
+
+            <!-- PREGUNTA 3: DESCRIPCIÓN DEL PROBLEMA -->
+            <div class="form-group">
+                <label for="descripcion">3. Descripción del problema</label>
                 
                 <div class="definition-box">
                     <strong>DEFINICIÓN DE PROBLEMA:</strong><br>
-                    Es un vacío, deficiencias, conflictos u obstáculos que puedes identificar.<br>
-                    <span class="definition-warning">⚠️ Nota: No describas la solución inmediatamente, enfócate en el problema.</span>
+                    Es un vacío, deficiencia, conflicto u obstáculo identificado.<br>
+                    <span class="definition-warning">⚠️ Nota: No describas la solución, enfócate en el problema.</span>
                 </div>
 
-                <textarea id="problemas" name="problemas" rows="6" placeholder="Describe los problemas principales aquí..." required></textarea>
+                <textarea id="descripcion" name="descripcion" rows="6" placeholder="Detalla el problema aquí..." required></textarea>
             </div>
 
             <button type="submit" class="btn-submit" id="submitBtn">Enviar Información</button>
             
-            <!-- Mensaje de éxito -->
             <div id="mensaje-exito">
                 ✅ Información enviada correctamente. ¡Gracias!
             </div>
@@ -225,17 +231,14 @@
         const webhookUrl = 'https://n8n.alliasoft.com/webhook/encuesta-problemas';
 
         form.addEventListener('submit', function(e) {
-            e.preventDefault(); // Evita que la página se recargue
+            e.preventDefault();
 
-            // 1. Deshabilitar botón para evitar doble envío
             submitBtn.disabled = true;
             submitBtn.textContent = 'Enviando...';
 
-            // 2. Capturar datos del formulario
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-            // 3. Enviar datos al Webhook como JSON
             fetch(webhookUrl, {
                 method: 'POST',
                 headers: {
@@ -245,16 +248,14 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // Éxito
-                    form.reset(); // Limpiar formulario
-                    mensajeExito.style.display = 'block'; // Mostrar mensaje
+                    form.reset();
+                    mensajeExito.style.display = 'block';
                     setTimeout(() => {
                         mensajeExito.style.display = 'none';
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Enviar Información';
-                    }, 5000); // Ocultar mensaje después de 5 segundos
+                    }, 5000);
                 } else {
-                    // Error del servidor
                     alert('Hubo un error al enviar los datos. Por favor intenta de nuevo.');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Enviar Información';
