@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Representación - Xactus</title>
+    <!-- Fuente Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        :root {
+            --brand-color: rgb(23, 64, 119);
+            --brand-hover: rgb(16, 45, 85);
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-gray: #555555;
+            --border-color: #cccccc;
+            --bg-page: #f4f7fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-dark);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        /* --- LOGO --- */
+        .logo-container {
+            margin-bottom: 25px;
+        }
+        .logo-container img {
+            max-width: 160px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--brand-color);
+            margin-bottom: 15px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        p { margin-bottom: 25px; color: var(--text-gray); font-size: 14px; line-height: 1.5; }
+
+        /* --- BOTONES --- */
+        .btn {
+            padding: 14px 28px;
+            background-color: var(--brand-color);
+            color: var(--white);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            text-transform: uppercase;
+            display: inline-block;
+            margin: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover { background-color: var(--brand-hover); }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--brand-color);
+            color: var(--brand-color);
+        }
+        .btn-outline:hover { background-color: var(--brand-color); color: var(--white); }
+
+        /* --- ANIMACIÓN SVG (AI LEYENDO) --- */
+        #loading-section { display: none; margin: 30px 0; }
+        
+        .ai-loader-svg {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px auto;
+            display: block;
+        }
+
+        /* Animación de los nodos */
+        .node { fill: var(--brand-color); animation: pulse 1.5s infinite ease-in-out; }
+        .line { stroke: var(--brand-color); stroke-width: 2; stroke-opacity: 0.3; animation: dash 2s infinite linear; }
+        
+        /* Retrasos para efecto orgánico */
+        .node:nth-child(1) { animation-delay: 0s; }
+        .node:nth-child(2) { animation-delay: 0.3s; }
+        .node:nth-child(3) { animation-delay: 0.6s; }
+        .node:nth-child(4) { animation-delay: 0.9s; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        .loading-text {
+            font-weight: 600;
+            color: var(--brand-color);
+            font-size: 16px;
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* --- SECCIÓN DE RESULTADO --- */
+        #result-section { display: none; animation: slideUp 0.5s ease-out; }
+        
+        .image-container {
+            position: relative;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 8px;
+            background: #fff;
+            cursor: zoom-in; /* Cursor de lupa */
+            transition: transform 0.2s;
+        }
+
+        .image-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+        }
+
+        .expand-hint {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- LIGHTBOX (PANTALLA COMPLETA) --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .lightbox.active img {
+            transform: scale(1);
+        }
+
+        .close-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- LOGO (Igual que en el formulario) -->
+        <div class="logo-container">
+            <img src="https://xactus.io/wp-content/uploads/2025/02/Logo.png" alt="Logo Xactus" onerror="this.style.display='none'; document.querySelector('.logo-container').innerHTML='<h2>XACTUS</h2>'">
+        </div>
+
+        <h1>Generador de Representación</h1>
+
+        <!-- VISTA INICIAL -->
+        <div id="initial-section">
+            <p>Genera una visualización basada en tu problemática estratégica utilizando nuestra IA.</p>
+            <button class="btn" id="generateBtn">Generar Representación</button>
+        </div>
+
+        <!-- VISTA DE CARGA (AI ANIMATION) -->
+        <div id="loading-section">
+            <!-- SVG Animado: Representa Nodos/Cerebro procesando -->
+            <svg class="ai-loader-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Líneas de conexión -->
+                <line x1="50" y1="50" x2="50" y2="20" class="line" />
+                <line x1="50" y1="50" x2="80" y2="80" class="line" />
+                <line x1="50" y1="50" x2="20" y2="80" class="line" />
+                
+                <!-- Nodos periféricos -->
+                <circle cx="50" cy="20" r="6" class="node" />
+                <circle cx="80" cy="80" r="6" class="node" />
+                <circle cx="20" cy="80" r="6" class="node" />
+
+                <!-- Nodo Central (Cerebro) -->
+                <circle cx="50" cy="50" r="10" class="node" style="animation-duration: 2s;" />
+            </svg>
+            
+            <p class="loading-text">La IA está leyendo y organizando tu información...</p>
+        </div>
+
+        <!-- VISTA DE RESULTADO -->
+        <div id="result-section">
+            <div class="image-container" id="openLightboxBtn" title="Clic para expandir">
+                <img id="generated-image" src="" alt="Imagen Generada por IA">
+            </div>
+            <div class="expand-hint">🔍 Haz clic en la imagen para verla en pantalla completa</div>
+            
+            <div style="margin-top: 25px;">
+                <button class="btn btn-outline" id="resetBtn">Volver a presentar imagen</button>
+                <button class="btn" id="downloadBtn">Descargar imagen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX (Para pantalla completa) -->
+    <div id="lightbox" class="lightbox">
+        <span class="close-lightbox">&times;</span>
+        <img id="lightbox-image" src="" alt="Pantalla completa">
+    </div>
+
+    <script>
+        // --- REFERENCIAS DOM ---
+        const initialSection = document.getElementById('initial-section');
+        const loadingSection = document.getElementById('loading-section');
+        const resultSection = document.getElementById('result-section');
+        
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        const smallImage = document.getElementById('generated-image');
+        const openLightboxBtn = document.getElementById('openLightboxBtn');
+        
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const closeLightbox = document.querySelector('.close-lightbox');
+
+        const webhookUrl = 'https://n8n.alliasoft.com/webhook/garcia_vega/generar_imagen';
+
+        // --- 1. GENERAR IMAGEN ---
+        generateBtn.addEventListener('click', () => {
+            // Cambio de interfaz: Mostrar loader
+            initialSection.style.display = 'none';
+            loadingSection.style.display = 'block';
+
+            // Petición al Webhook
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}) // Body vacío o con datos si es necesario
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Error servidor');
+                return response.json();
+            })
+            .then(data => {
+                let base64String = data.image_url;
+                
+                // Asegurar formato base64 correcto
+                if (!base64String.startsWith('data:image')) {
+                    base64String = 'data:image/png;base64,' + base64String;
+                }
+
+                // Asignar imagen a la vista pequeña y al lightbox
+                smallImage.src = base64String;
+                lightboxImage.src = base64String;
+
+                // Cambio de interfaz: Mostrar resultado
+                loadingSection.style.display = 'none';
+                resultSection.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un problema al generar la imagen. Intenta de nuevo.');
+                loadingSection.style.display = 'none';
+                initialSection.style.display = 'block';
+            });
+        });
+
+        // --- 2. LIGHTBOX (PANTALLA COMPLETA) ---
+        
+        // Abrir
+        openLightboxBtn.addEventListener('click', () => {
+            lightbox.classList.add('active');
+        });
+
+        // Cerrar (Clic en X o en el fondo)
+        const closeLightboxFunc = () => {
+            lightbox.classList.remove('active');
+        };
+
+        closeLightbox.addEventListener('click', closeLightboxFunc);
+        
+        lightbox.addEventListener('click', (e) => {
+            // Si el clic fue en el fondo (no en la imagen), cerrar
+            if (e.target === lightbox) {
+                closeLightboxFunc();
+            }
+        });
+
+        // Cerrar con tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightboxFunc();
+            }
+        });
+
+        // --- 3. RESETEAR ---
+        resetBtn.addEventListener('click', () => {
+            resultSection.style.display = 'none';
+            initialSection.style.display = 'block';
+            smallImage.src = ''; 
+            lightboxImage.src = '';
+        });
+
+        // --- 4. DESCARGAR ---
+        downloadBtn.addEventListener('click', () => {
+            const imageSrc = smallImage.src;
+            if (!imageSrc) return;
+
+            const link = document.createElement('a');
+            link.href = imageSrc;
+            link.download = 'representacion-xactus.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+
+</body>
+</html>
