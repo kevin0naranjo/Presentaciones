@@ -79,10 +79,13 @@
             color: var(--brand-color);
             margin-bottom: 10px;
             font-size: 16px;
+            line-height: 1.4; /* Mejora lectura para textos largos */
         }
 
+        /* Agregamos 'select' para que herede los estilos */
         input[type="text"], 
-        textarea {
+        textarea,
+        select {
             width: 100%;
             padding: 12px 15px;
             font-size: 16px;
@@ -93,11 +96,21 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
             transition: border-color 0.3s, box-shadow 0.3s;
-            appearance: none;
+            appearance: none; /* Elimina estilos nativos del navegador */
+        }
+
+        /* Flecha personalizada para el select (opcional para asegurar diseño) */
+        select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
+            cursor: pointer;
         }
 
         input[type="text"]:focus, 
-        textarea:focus {
+        textarea:focus,
+        select:focus {
             border-color: var(--brand-color);
             outline: none;
             box-shadow: 0 0 0 3px rgba(23, 64, 119, 0.1);
@@ -168,7 +181,7 @@
 
         @media (prefers-color-scheme: dark) {
             body { background-color: #ffffff !important; color: #333333 !important; }
-            input, textarea { background-color: #ffffff !important; color: #333333 !important; border: 1px solid #cccccc !important; }
+            input, textarea, select { background-color: #ffffff !important; color: #333333 !important; border: 1px solid #cccccc !important; }
         }
     </style>
 </head>
@@ -177,13 +190,6 @@
     <div class="form-container">
         <!-- LOGO -->
         <div class="logo-container">
-            <!-- 
-               IMPORTANTE SOBRE LA IMAGEN:
-               Si la imagen no carga en producción, es probable que el servidor original bloquee
-               el acceso externo (Hotlinking). 
-               SOLUCIÓN: Descarga la imagen, guárdala en tu carpeta local como "logo.png" 
-               y cambia el src a: src="logo.png"
-            -->
             <img src="https://xactus.io/wp-content/uploads/2025/02/Logo.png" alt="Logo Xactus" onerror="this.style.display='none'; document.querySelector('.logo-container').innerHTML='<h2>XACTUS</h2>'">
         </div>
 
@@ -197,15 +203,22 @@
                 <input type="text" id="nombre" name="nombre" placeholder="Escribe tu nombre completo..." required>
             </div>
 
-            <!-- PREGUNTA 2: FRENTE -->
+            <!-- PREGUNTA 2: PROCESO CRÍTICO (ANTES FRENTE) -->
             <div class="form-group">
-                <label for="frente">2. ¿A cuál frente corresponde el problema?</label>
-                <input type="text" id="frente" name="frente" placeholder="Ej: Operaciones, Ventas, Tecnología..." required>
+                <label for="frente">2. ¿A cuál proceso crítico corresponde el problema?</label>
+                <!-- Se cambió input por select manteniendo el name="frente" -->
+                <select id="frente" name="frente" required>
+                    <option value="" disabled selected>Seleccione una opción...</option>
+                    <option value="Gestión de Activos">Gestión de Activos</option>
+                    <option value="Gestión de Talento Humano">Gestión de Talento Humano</option>
+                    <option value="Gestión de Cartera">Gestión de Cartera</option>
+                </select>
             </div>
 
             <!-- PREGUNTA 3: DESCRIPCIÓN DEL PROBLEMA -->
             <div class="form-group">
-                <label for="descripcion">3. Descripción del problema</label>
+                <!-- El texto de este label cambiará dinámicamente con JS -->
+                <label for="descripcion" id="label-descripcion">3. Descripción del problema</label>
                 
                 <div class="definition-box">
                     <strong>DEFINICIÓN DE PROBLEMA:</strong><br>
@@ -230,6 +243,30 @@
         const mensajeExito = document.getElementById('mensaje-exito');
         const webhookUrl = 'https://n8n.alliasoft.com/webhook/encuesta-problemas';
 
+        // Elementos para la lógica dinámica
+        const frenteSelect = document.getElementById('frente');
+        const labelDescripcion = document.getElementById('label-descripcion');
+
+        // Textos dinámicos según selección
+        const textosPregunta3 = {
+            'Gestión de Activos': '3. Cuáles son los principales PROBLEMAS – vacíos, deficiencias, conflictos, obstáculos, para que García Vega tenga una buena gestión de activos, que permita la predicción efectiva de la demanda de alquileres y anticipar requerimientos.',
+            'Gestión de Talento Humano': '3. Cuáles son los principales PROBLEMAS – vacíos, deficiencias, conflictos, obstáculos, para que García Vega tenga una buena gestión de talento humano, que permita la planeación efectiva de la mano de obra disponible.',
+            'Gestión de Cartera': '3. Cuáles son los principales PROBLEMAS – vacíos, deficiencias, conflictos, obstáculos, para que García Vega tenga una buena gestión de cartera, que optimice los recursos disponibles para el crecimiento de la empresa además de minimizar el riesgo crediticio.'
+        };
+
+        const textoDefault = '3. Descripción del problema';
+
+        // Evento cambio en el select
+        frenteSelect.addEventListener('change', function() {
+            const seleccion = this.value;
+            if (textosPregunta3[seleccion]) {
+                labelDescripcion.innerText = textosPregunta3[seleccion];
+            } else {
+                labelDescripcion.innerText = textoDefault;
+            }
+        });
+
+        // Envío del formulario
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -249,6 +286,9 @@
             .then(response => {
                 if (response.ok) {
                     form.reset();
+                    // Resetear el texto de la etiqueta al valor por defecto tras resetear form
+                    labelDescripcion.innerText = textoDefault;
+                    
                     mensajeExito.style.display = 'block';
                     setTimeout(() => {
                         mensajeExito.style.display = 'none';
